@@ -22,7 +22,22 @@ By the end of this workshop, you'll understand how to:
 
 ## 🚀 Quick Start
 
+
 ### Option 1: GitHub Codespaces (Recommended)
+### Option 1: GitHub Codespaces (Recommended)
+
+#### 📓 One-Click Temporal Installation (Recommended)
+
+For easiest setup, use the Jupyter notebook:
+
+1. Open `temporal_installation.ipynb` in VS Code or Jupyter Lab
+2. Run each cell to:
+    - Install the Temporal CLI
+    - Start the Temporal dev server
+
+This method works in Codespaces, local dev containers, and most Linux environments.
+
+---
 
 1. Click the "Open in GitHub Codespaces" badge above
 2. Wait ~90 seconds for the environment to set up
@@ -37,7 +52,19 @@ By the end of this workshop, you'll understand how to:
    ```
 5. You're ready to start the exercises!
 
+
 ### Option 2: Local Setup
+
+#### 📓 One-Click Temporal Installation (Recommended)
+
+You can also use the Jupyter notebook for local setup:
+
+1. Open `temporal_installation.ipynb` in VS Code or Jupyter Lab
+2. Run each cell to:
+    - Install the Temporal CLI
+    - Start the Temporal dev server
+
+---
 
 ```bash
 # Clone the repository
