@@ -22,8 +22,6 @@ By the end of this workshop, you'll understand how to:
 
 ## 🚀 Quick Start
 
-
-### Option 1: GitHub Codespaces (Recommended)
 ### Option 1: GitHub Codespaces (Recommended)
 
 #### 📓 One-Click Temporal Installation (Recommended)
@@ -32,8 +30,8 @@ For easiest setup, use the Jupyter notebook:
 
 1. Open `temporal_installation.ipynb` in VS Code or Jupyter Lab
 2. Run each cell to:
-    - Install the Temporal CLI
-    - Start the Temporal dev server
+   - Install the Temporal CLI
+   - Start the Temporal dev server
 
 This method works in Codespaces, local dev containers, and most Linux environments.
 
@@ -52,7 +50,6 @@ This method works in Codespaces, local dev containers, and most Linux environmen
    ```
 5. You're ready to start the exercises!
 
-
 ### Option 2: Local Setup
 
 #### 📓 One-Click Temporal Installation (Recommended)
@@ -61,8 +58,8 @@ You can also use the Jupyter notebook for local setup:
 
 1. Open `temporal_installation.ipynb` in VS Code or Jupyter Lab
 2. Run each cell to:
-    - Install the Temporal CLI
-    - Start the Temporal dev server
+   - Install the Temporal CLI
+   - Start the Temporal dev server
 
 ---
 
@@ -94,6 +91,7 @@ make temporal-up
 This is a 90-minute workshop: **30 minutes instruction + 4×15 minute exercises**
 
 ### Exercise 1: Agent Hello World
+
 **Goal:** Create a simple AI agent with tool calling
 
 - Build your first OpenAI agent with a weather tool
@@ -101,12 +99,14 @@ This is a 90-minute workshop: **30 minutes instruction + 4×15 minute exercises*
 - See how LLMs decide when to use tools
 
 **Run it:**
+
 ```bash
 make exercise-1
 # Or open: exercises/01_agent_hello_world/exercise.ipynb
 ```
 
 ### Exercise 2: Temporal Hello World
+
 **Goal:** Understand Temporal workflows and activities
 
 - Create your first Temporal workflow
@@ -114,6 +114,7 @@ make exercise-1
 - Observe execution in the Temporal UI
 
 **Run it:**
+
 ```bash
 make temporal-up    # Start Temporal server
 make exercise-2
@@ -121,6 +122,7 @@ make exercise-2
 ```
 
 ### Exercise 3: Durable Agent
+
 **Goal:** Combine agents + Temporal for production durability
 
 - Wrap LLM calls in Temporal activities
@@ -129,12 +131,14 @@ make exercise-2
 - Add observability with trace IDs
 
 **Run it:**
+
 ```bash
 make exercise-3
 # Or open: exercises/03_durable_agent/exercise.ipynb
 ```
 
 ### Exercise 4: Multi-Agent Handoff
+
 **Goal:** Build multi-agent systems with workflow orchestration
 
 - Implement agent routing/triage patterns
@@ -143,6 +147,7 @@ make exercise-3
 - Maintain context across agent transitions
 
 **Run it:**
+
 ```bash
 make exercise-4
 # Or open: exercises/04_multi_agent_handoff/exercise.ipynb
