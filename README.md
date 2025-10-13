@@ -90,6 +90,10 @@ make temporal-up
 
 This is a 90-minute workshop: **30 minutes instruction + 4×15 minute exercises**
 
+## Intro to OpenAI Agents SDK
+
+[Slides 4-11](https://docs.google.com/presentation/d/1ZKj-PUm8-swnwP7jQPyQNMs4NIBAuCuglU3iByWn4CM/edit?slide=id.g38cc80f1e1e_1_0#slide=id.g38cc80f1e1e_1_0)
+
 ### Exercise 1: Agent Hello World
 
 **Goal:** Create a simple AI agent with tool calling
@@ -266,13 +270,16 @@ python -m ipykernel install --user --name temporal-workshop
 
 ### Timing Breakdown
 
-- **00:00-10:00** - Introduction & Setup verification
-- **10:00-25:00** - Demo Exercise 1 + Q&A
-- **25:00-40:00** - Students work on Exercise 1
-- **40:00-55:00** - Demo Exercise 2 + Q&A
-- **55:00-70:00** - Students work on Exercise 2
-- **70:00-80:00** - Demo Exercise 3 (key integration)
-- **80:00-90:00** - Students explore Exercise 3 & 4
+- **00:00-5:00** - Introduction & Setup verification
+- **5:00-15:00** - OpenAI Agents SDK Introduction (slides)
+- **15:00-30:00** - Exercise 1 + Q&A
+- **25:00-35:00** - Solution to 1
+- **35:00-40:00** - Intro to Temporal (slides)
+- **40:00-55:00** - Exercise 2 + Q&A
+- **55:00-65:00** - Solution to 2
+- **65:00-70:00** - OpenAI Agents SDK + Temporal (slides)
+- **70:00-85:00** - Exercise 3
+- **85:00-90:00** - Closing
 
 ### Common Pitfalls
 
