@@ -22,8 +22,6 @@ By the end of this workshop, you'll understand how to:
 
 ## 🚀 Quick Start
 
-
-### Option 1: GitHub Codespaces (Recommended)
 ### Option 1: GitHub Codespaces (Recommended)
 
 #### 📓 One-Click Temporal Installation (Recommended)
@@ -32,8 +30,8 @@ For easiest setup, use the Jupyter notebook:
 
 1. Open `temporal_installation.ipynb` in VS Code or Jupyter Lab
 2. Run each cell to:
-    - Install the Temporal CLI
-    - Start the Temporal dev server
+   - Install the Temporal CLI
+   - Start the Temporal dev server
 
 This method works in Codespaces, local dev containers, and most Linux environments.
 
@@ -52,7 +50,6 @@ This method works in Codespaces, local dev containers, and most Linux environmen
    ```
 5. You're ready to start the exercises!
 
-
 ### Option 2: Local Setup
 
 #### 📓 One-Click Temporal Installation (Recommended)
@@ -61,8 +58,8 @@ You can also use the Jupyter notebook for local setup:
 
 1. Open `temporal_installation.ipynb` in VS Code or Jupyter Lab
 2. Run each cell to:
-    - Install the Temporal CLI
-    - Start the Temporal dev server
+   - Install the Temporal CLI
+   - Start the Temporal dev server
 
 ---
 
@@ -93,7 +90,12 @@ make temporal-up
 
 This is a 90-minute workshop: **30 minutes instruction + 4×15 minute exercises**
 
+## Intro to OpenAI Agents SDK
+
+[Slides 4-11](https://docs.google.com/presentation/d/1ZKj-PUm8-swnwP7jQPyQNMs4NIBAuCuglU3iByWn4CM/edit?slide=id.g38cc80f1e1e_1_0#slide=id.g38cc80f1e1e_1_0)
+
 ### Exercise 1: Agent Hello World
+
 **Goal:** Create a simple AI agent with tool calling
 
 - Build your first OpenAI agent with a weather tool
@@ -101,12 +103,14 @@ This is a 90-minute workshop: **30 minutes instruction + 4×15 minute exercises*
 - See how LLMs decide when to use tools
 
 **Run it:**
+
 ```bash
-make exercise-1
-# Or open: exercises/01_agent_hello_world/exercise.ipynb
+# Open the Jupyter notebook:
+# exercises/01_agent_hello_world/exercise.ipynb
 ```
 
 ### Exercise 2: Temporal Hello World
+
 **Goal:** Understand Temporal workflows and activities
 
 - Create your first Temporal workflow
@@ -114,13 +118,15 @@ make exercise-1
 - Observe execution in the Temporal UI
 
 **Run it:**
+
 ```bash
 make temporal-up    # Start Temporal server
-make exercise-2
-# Or open: exercises/02_temporal_hello_world/exercise.ipynb
+# Open the Jupyter notebook:
+# exercises/02_temporal_hello_world/exercise.ipynb
 ```
 
 ### Exercise 3: Durable Agent
+
 **Goal:** Combine agents + Temporal for production durability
 
 - Wrap LLM calls in Temporal activities
@@ -129,12 +135,14 @@ make exercise-2
 - Add observability with trace IDs
 
 **Run it:**
+
 ```bash
-make exercise-3
-# Or open: exercises/03_durable_agent/exercise.ipynb
+# Open the Jupyter notebook:
+# exercises/03_durable_agent/exercise.ipynb
 ```
 
 ### Exercise 4: Multi-Agent Handoff
+
 **Goal:** Build multi-agent systems with workflow orchestration
 
 - Implement agent routing/triage patterns
@@ -143,9 +151,10 @@ make exercise-3
 - Maintain context across agent transitions
 
 **Run it:**
+
 ```bash
-make exercise-4
-# Or open: exercises/04_multi_agent_handoff/exercise.ipynb
+# Open the Jupyter notebook:
+# exercises/04_multi_agent_handoff/exercise.ipynb
 ```
 
 ## 🛠️ Common Commands
@@ -163,11 +172,11 @@ make test           # Run test suite
 make temporal-up    # Start Temporal dev server
 make temporal-down  # Stop Temporal server
 
-# Exercises (both .py scripts and .ipynb notebooks available)
-make exercise-1     # Run Exercise 1
-make exercise-2     # Run Exercise 2
-make exercise-3     # Run Exercise 3
-make exercise-4     # Run Exercise 4
+# Exercises (Jupyter notebooks only)
+# Open exercises/01_agent_hello_world/exercise.ipynb
+# Open exercises/02_temporal_hello_world/exercise.ipynb
+# Open exercises/03_durable_agent/exercise.ipynb
+# Open exercises/04_multi_agent_handoff/exercise.ipynb
 ```
 
 ## 🔍 Key Concepts
@@ -261,13 +270,16 @@ python -m ipykernel install --user --name temporal-workshop
 
 ### Timing Breakdown
 
-- **00:00-10:00** - Introduction & Setup verification
-- **10:00-25:00** - Demo Exercise 1 + Q&A
-- **25:00-40:00** - Students work on Exercise 1
-- **40:00-55:00** - Demo Exercise 2 + Q&A
-- **55:00-70:00** - Students work on Exercise 2
-- **70:00-80:00** - Demo Exercise 3 (key integration)
-- **80:00-90:00** - Students explore Exercise 3 & 4
+- **00:00-5:00** - Introduction & Setup verification
+- **5:00-15:00** - OpenAI Agents SDK Introduction (slides)
+- **15:00-30:00** - Exercise 1 + Q&A
+- **25:00-35:00** - Solution to 1
+- **35:00-40:00** - Intro to Temporal (slides)
+- **40:00-55:00** - Exercise 2 + Q&A
+- **55:00-65:00** - Solution to 2
+- **65:00-70:00** - OpenAI Agents SDK + Temporal (slides)
+- **70:00-85:00** - Exercise 3
+- **85:00-90:00** - Closing
 
 ### Common Pitfalls
 

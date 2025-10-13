@@ -88,6 +88,7 @@ Each exercise includes its own README:
 - `devcontainer.json` installs Python 3.11 → calls `scripts/bootstrap.sh` post-create.
 - `scripts/bootstrap.sh` installs deps, Temporal CLI, validates env (`OPENAI_API_KEY`).
 - `scripts/run_temporal.sh` idempotent: if Temporal running, exit 0.
+- Notebooks that host a Temporal worker **must** pass `workflow_runner=UnsandboxedWorkflowRunner()` and `debug_mode=True` to avoid sandbox validation errors inside Jupyter.
 - **Makefile targets:**
   ```
   setup, env, lint, test, temporal-up, exercise-1, exercise-2, exercise-3
@@ -139,6 +140,7 @@ Each exercise includes its own README:
 - Use linear, readable flow; verbose naming.
 - Log start/end of activities, retries, and workflow resumptions.
 - Comments explain _why_ (durability, retries, state).
+- Activities exposed from notebooks should be declared with `async def` (or supplied with an explicit `activity_executor`) so the Temporal worker does not raise synchronous activity errors.
 
 ---
 
