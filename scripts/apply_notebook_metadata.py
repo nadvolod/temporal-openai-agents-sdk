@@ -4,6 +4,7 @@
 This script keeps the configuration centralized so every notebook across the
 workshop uses the same Python interpreter metadata.
 """
+
 from __future__ import annotations
 
 import argparse
