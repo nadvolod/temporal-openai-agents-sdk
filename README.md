@@ -101,8 +101,8 @@ This is a 90-minute workshop: **30 minutes instruction + 4×15 minute exercises*
 **Run it:**
 
 ```bash
-make exercise-1
-# Or open: exercises/01_agent_hello_world/exercise.ipynb
+# Open the Jupyter notebook:
+# exercises/01_agent_hello_world/exercise.ipynb
 ```
 
 ### Exercise 2: Temporal Hello World
@@ -117,8 +117,8 @@ make exercise-1
 
 ```bash
 make temporal-up    # Start Temporal server
-make exercise-2
-# Or open: exercises/02_temporal_hello_world/exercise.ipynb
+# Open the Jupyter notebook:
+# exercises/02_temporal_hello_world/exercise.ipynb
 ```
 
 ### Exercise 3: Durable Agent
@@ -133,8 +133,8 @@ make exercise-2
 **Run it:**
 
 ```bash
-make exercise-3
-# Or open: exercises/03_durable_agent/exercise.ipynb
+# Open the Jupyter notebook:
+# exercises/03_durable_agent/exercise.ipynb
 ```
 
 ### Exercise 4: Multi-Agent Handoff
@@ -149,8 +149,8 @@ make exercise-3
 **Run it:**
 
 ```bash
-make exercise-4
-# Or open: exercises/04_multi_agent_handoff/exercise.ipynb
+# Open the Jupyter notebook:
+# exercises/04_multi_agent_handoff/exercise.ipynb
 ```
 
 ## 🛠️ Common Commands
@@ -168,11 +168,11 @@ make test           # Run test suite
 make temporal-up    # Start Temporal dev server
 make temporal-down  # Stop Temporal server
 
-# Exercises (both .py scripts and .ipynb notebooks available)
-make exercise-1     # Run Exercise 1
-make exercise-2     # Run Exercise 2
-make exercise-3     # Run Exercise 3
-make exercise-4     # Run Exercise 4
+# Exercises (Jupyter notebooks only)
+# Open exercises/01_agent_hello_world/exercise.ipynb
+# Open exercises/02_temporal_hello_world/exercise.ipynb
+# Open exercises/03_durable_agent/exercise.ipynb
+# Open exercises/04_multi_agent_handoff/exercise.ipynb
 ```
 
 ## 🔍 Key Concepts
