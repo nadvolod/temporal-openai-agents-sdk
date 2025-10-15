@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a 90-minute workshop repository teaching developers how to build **durable AI agents** using **OpenAI Agents SDK + Temporal**. The workshop is designed to run in GitHub Codespaces with zero local setup required.
+This is a 90-minute workshop repository teaching developers how to build **durable AI agents** using **[OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) + Temporal**. The workshop is designed to run in GitHub Codespaces with zero local setup required.
+
+[OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) is critical to this entire workshop. All LLM tool calls must happen using this SDK.
+
+All tool calls have to be real, no mocking. Use the [weather API](https://docs.temporal.io/ai-cookbook/tool-calling-python#create-the-activity-for-the-tool-invocation). All code uses **asyncio** for efficient I/O operations.
 
 **Target Audience:** Beginner-intermediate Python developers
 **Workshop Format:** 30 minutes instruction + 4×15 minute exercises
@@ -12,7 +16,7 @@ This is a 90-minute workshop repository teaching developers how to build **durab
 ## Tech Stack
 
 - **Python 3.11** - Primary language
-- **openai** - OpenAI Agents SDK for LLM-based agents
+- **openai agents sdk** - [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/)
 - **temporalio** - Workflow orchestration for durability and retries
 - **Temporal CLI** - Local development server
 - **Development tools:** `rich`, `typer`, `pytest`, `ruff`, `mypy`
@@ -38,23 +42,12 @@ make test           # Run pytest test suite
 ### Temporal Server
 
 ```bash
-make temporal-up    # Start Temporal local dev server (idempotent)
+temporal server start-dev     # Start Temporal local dev server (idempotent)
 ```
 
 ### Exercises
 
-```bash
-make exercise-1     # Run Exercise 1: Agent Hello World
-make exercise-2     # Run Exercise 2: Temporal Hello World
-make exercise-3     # Run Exercise 3: Durable Agent
-make exercise-4     # Run Exercise 4: Multi-Agent Handoff
-
-# Or open Jupyter notebooks directly:
-# exercises/01_agent_hello_world/exercise.ipynb
-# exercises/02_temporal_hello_world/ (Python files - temporal workflows in notebooks coming)
-# exercises/03_durable_agent/ (Python files)
-# exercises/04_multi_agent_handoff/ (Python files)
-```
+- All exercises and solutions live in `.ipynb` self-contained files that have all of the necessary code to work independently. No extra files should be required.
 
 ## Repository Architecture
 
@@ -63,25 +56,33 @@ make exercise-4     # Run Exercise 4: Multi-Agent Handoff
 The workshop follows a progressive learning path:
 
 1. **Exercise 1 - Agent Hello World** (`exercises/01_agent_hello_world/`)
-   - Minimal OpenAI agent: model + system instructions + 1 tool
-   - Demonstrates basic agent patterns
-   - Available as Jupyter notebook (`exercise.ipynb`) and Python script
-   - No Temporal integration yet
+
+   - Minimal OpenAI Agents SDK usage using a real API call on [weather api](https://docs.temporal.io/ai-cookbook/tool-calling-python#create-the-activity-for-the-tool-invocation)
+   - Demonstrates asyncio patterns with `async/await`
+
+- Demonstrates basic agent patterns with built-in tools
+- Available as Jupyter notebook (`exercise.ipynb`)
+- No Temporal integration yet
+- All asyncio from the start
 
 2. **Exercise 2 - Temporal Hello World** (`exercises/02_temporal_hello_world/`)
+
    - 1 workflow + 1 activity in Python
    - Introduces Temporal concepts without AI complexity
    - Shows durability and retry mechanisms
 
 3. **Exercise 3 - Durable Agent** (`exercises/03_durable_agent/`)
-   - **Core integration:** LLM/tool calls wrapped in Temporal activities
-   - Workflow-based state persistence
+
+   - **Core integration:** The SAME Weather Agent from Exercise 1, now wrapped in Temporal activities for durability!
+   - Workflow-based state persistence with asyncio throughout
    - Includes `trace_id` for observability correlation
    - Demonstrates retry logic and durability for AI operations
+   - Demonstrates network disconnection and Temporal's ability to automatically retry and recover
+   - All async: `await Runner.run()`, `async def` activities and workflows
 
 4. **Exercise 4 - Multi-Agent Handoff** (`exercises/04_multi_agent_handoff/`)
-   - Advanced: Multiple specialized agents
-   - Triage agent routes queries to specialists
+   - Advanced: Multiple specialized agents from OpenAI Agents SDK similar to https://openai.github.io/openai-agents-python/quickstart/#put-it-all-together
+   - Triage agent routes queries to specialists of the WebSearchTool and another agent that we create
    - Context maintained across agent handoffs
    - Workflow orchestration of agent-to-agent transitions
 
@@ -97,11 +98,8 @@ scripts/       # Bootstrap, environment checks, Temporal startup
 
 Each exercise directory contains:
 
-- Exercise-specific Python files (activities.py, workflows.py, main.py)
 - Jupyter notebooks for interactive learning (where applicable)
 - `README.md` with: Goal, Steps (≤5), Expected Output, Stretch Goal, Timebox
-
-**Note on Notebooks:** Exercise 1 includes both `.ipynb` (interactive) and `.py` (script) versions. Temporal workflows (Ex 2-4) use Python scripts since workflow execution requires the Temporal worker process running continuously.
 
 ## Key Architectural Patterns
 
@@ -112,6 +110,7 @@ In Exercise 3, LLM calls are wrapped in **Temporal activities** rather than call
 - Automatic retries on failure
 - State persistence across crashes
 - Replay-safe execution
+- Example of stopping the internet to show Temporal's durability
 
 ### Observability Integration
 
@@ -129,25 +128,18 @@ All code follows these principles:
 - **Verbose naming:** Self-documenting variable and function names
 - **Instructional logging:** Log activity starts/ends, retries, workflow resumptions
 - **Explanatory comments:** Focus on _why_ (durability, retries, state), not _what_
-- **Length constraint:** Keep files ≤80 lines
+- **With valuable comments** A valuable comment for each line of code. No comments for imports or no comments for logging statements.
 
 ## Environment & Secrets
 
 ### Required Environment Variables
 
-- `OPENAI_API_KEY` - Required for exercises 1 and 3
+- `OPENAI_API_KEY` - Required for exercises 1, 3, 4
 
 ### Security Model
 
 - `.env.sample` provides template (never commit `.env`)
 - `scripts/check_env.py` validates environment before exercises run
-- Tests mock OpenAI calls so CI passes without real keys
-
-## Testing Strategy
-
-- Mock OpenAI responses to avoid requiring API keys in CI
-- Each exercise has corresponding tests verifying expected behavior
-- Tests should pass in CI without real credentials
 
 ## DevEx & Codespaces
 
@@ -171,14 +163,14 @@ All code follows these principles:
 - Follow the 15-minute timebox constraint
 - Include README with 5 or fewer steps
 - Mirror in `/solutions/` with complete, commented implementation
-- Keep code files under 80 lines
 
 ### When Modifying Existing Code
 
 - Maintain teaching clarity - avoid clever abstractions
-- Add logs for observable events (retries, state changes)
+- Add logs for observable events (retries, state changes, tool calls)
 - Update corresponding solution if changing exercise starter code
 - Ensure comments explain the "why" behind durability patterns
+- Don't use yellow as a logging color
 
 ### When Debugging
 
@@ -194,4 +186,3 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 - Runs on push/PR
 - Tests on Python 3.11
 - Executes: `ruff` → `mypy` → `pytest -q`
-- Must pass without real OpenAI API key (mocked tests)
