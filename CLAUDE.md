@@ -57,13 +57,52 @@ The workshop follows a progressive learning path:
 
 1. **Exercise 1 - Agent Hello World** (`exercises/01_agent_hello_world/`)
 
-   - Minimal OpenAI Agents SDK usage using a real API call on [weather api](https://docs.temporal.io/ai-cookbook/tool-calling-python#create-the-activity-for-the-tool-invocation)
-   - Demonstrates asyncio patterns with `async/await`
+   - Minimal OpenAI Agents SDK usage with custom weather tool calling the [National Weather Service API](https://docs.temporal.io/ai-cookbook/tool-calling-python#create-the-activity-for-the-tool-invocation)
+   - Demonstrates `@function_tool` decorator for custom tools
+   - Real API calls with async/await patterns
 
-- Demonstrates basic agent patterns with built-in tools
+```py
+# Example from Exercise 1
+import asyncio
+import httpx
+from agents import Agent, Runner, function_tool
+
+@function_tool
+async def get_weather_alerts(state: str) -> str:
+    """Get weather alerts for a US state from NWS."""
+    url = f"https://api.weather.gov/alerts/active/area/{state.upper()}"
+    headers = {"User-Agent": "OpenAI-Agents-Workshop"}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers, timeout=10.0)
+        data = response.json()
+        features = data.get("features", [])
+
+        if not features:
+            return f"No active weather alerts for {state.upper()}."
+
+        # Format alerts
+        alerts = [f.get("properties", {}).get("event") for f in features[:5]]
+        return f"Active alerts: {', '.join(alerts)}"
+
+agent = Agent(
+    name="Weather Agent",
+    instructions="You help users get weather alerts for US states.",
+    tools=[get_weather_alerts]
+)
+
+async def main():
+    result = await Runner.run(agent, "Are there weather alerts for CA?")
+    print(result.final_output)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+- Demonstrates custom tool creation with `@function_tool`
+- Real API integration (no mocking)
 - Available as Jupyter notebook (`exercise.ipynb`)
 - No Temporal integration yet
-- All asyncio from the start
 
 2. **Exercise 2 - Temporal Hello World** (`exercises/02_temporal_hello_world/`)
 
@@ -73,16 +112,145 @@ The workshop follows a progressive learning path:
 
 3. **Exercise 3 - Durable Agent** (`exercises/03_durable_agent/`)
 
-   - **Core integration:** The SAME Weather Agent from Exercise 1, now wrapped in Temporal activities for durability!
+   - **Core integration:** Weather agent with Temporal activities as tools using `activity_as_tool()` pattern
+   - **4-component structure** mirrors production applications (activities, workflow, worker, starter)
    - Workflow-based state persistence with asyncio throughout
-   - Includes `trace_id` for observability correlation
    - Demonstrates retry logic and durability for AI operations
    - Demonstrates network disconnection and Temporal's ability to automatically retry and recover
-   - All async: `await Runner.run()`, `async def` activities and workflows
+   - All async: `await Runner().run()`, `async def` activities and workflows
+
+### **The 4-Component Pattern**
+
+Exercise 3 follows the production-ready structure from [temporal-weather-openai-agents](https://github.com/nadvolod/temporal-weather-openai-agents):
+
+#### **Component 1: activities.py**
+```py
+import httpx
+from temporalio import activity
+
+@activity.defn(name="get_weather")
+async def get_weather(state: str) -> dict:
+    """Fetch active NWS alerts for a 2-letter US state code."""
+    headers = {"User-Agent": "Temporal-Agents-Workshop/1.0"}
+    async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.get(
+            f"https://api.weather.gov/alerts/active/area/{state}",
+            headers=headers
+        )
+        r.raise_for_status()
+        data = r.json()
+
+    alerts = []
+    for f in (data.get("features") or [])[:5]:
+        p = f.get("properties", {})
+        alerts.append({
+            "event": p.get("event"),
+            "headline": p.get("headline"),
+            "severity": p.get("severity"),
+            "area": p.get("areaDesc"),
+        })
+
+    return {"state": state.upper(), "count": len(alerts), "alerts": alerts}
+```
+
+#### **Component 2: workflow.py**
+```py
+from datetime import timedelta
+from temporalio import workflow
+from temporalio.contrib import openai_agents
+from agents import Agent, Runner
+
+TASK_QUEUE = "weather-agents"
+
+@workflow.defn
+class WeatherAgentWorkflow:
+    @workflow.run
+    async def run(self, user_query: str) -> str:
+        agent = Agent(
+            name="Weather Assistant",
+            instructions="You are a helpful assistant that explains current weather alerts for U.S. states.",
+            tools=[
+                openai_agents.workflow.activity_as_tool(
+                    get_weather,
+                    start_to_close_timeout=timedelta(seconds=10),
+                )
+            ],
+        )
+        # Note: Runner() is instantiated, not just Runner
+        result = await Runner().run(agent, user_query)
+        return getattr(result, "final_output", str(result))
+```
+
+#### **Component 3: worker.py**
+```py
+from temporalio.client import Client
+from temporalio.worker import Worker
+from temporalio.contrib.openai_agents import OpenAIAgentsPlugin, ModelActivityParameters
+from temporalio.worker.workflow_sandbox import SandboxedWorkflowRunner, SandboxRestrictions
+
+async def main():
+    client = await Client.connect(
+        "localhost:7233",
+        plugins=[
+            OpenAIAgentsPlugin(
+                model_params=ModelActivityParameters(
+                    start_to_close_timeout=timedelta(seconds=30)
+                )
+            )
+        ],
+    )
+
+    worker = Worker(
+        client,
+        task_queue=TASK_QUEUE,
+        workflows=[WeatherAgentWorkflow],
+        activities=[get_weather],
+        workflow_runner=SandboxedWorkflowRunner(
+            restrictions=SandboxRestrictions.default.with_passthrough_modules("httpx")
+        )
+    )
+    await worker.run()
+```
+
+#### **Component 4: starter.py**
+```py
+from temporalio.client import Client
+from temporalio.contrib.openai_agents import OpenAIAgentsPlugin
+
+async def main():
+    client = await Client.connect("localhost:7233", plugins=[OpenAIAgentsPlugin()])
+
+    # Use start_workflow, not execute_workflow
+    handle = await client.start_workflow(
+        WeatherAgentWorkflow.run,
+        "What weather alerts are active in CA?",
+        id="weather-workflow-id",
+        task_queue=TASK_QUEUE
+    )
+
+    print(f"🚀 Started workflow: {handle.id}")
+    result = await handle.result()
+    print(f"🤖 Response: {result}")
+```
+
+**Key Benefits:**
+- ✅ Clean separation of concerns - each component has one responsibility
+- ✅ Agent tool calls are durable and automatically retried by Temporal
+- ✅ Full execution history visible in Temporal UI
+- ✅ Survives network failures, API errors, and crashes
+- ✅ Production-ready pattern that scales to real applications
+- ✅ Proper sandbox configuration with `with_passthrough_modules()`
+
+**Important Notes:**
+- Activity returns `dict` not string - LLM interprets structured data
+- Single parameter: `user_query` (no trace_id)
+- `Runner()` is instantiated (not just `Runner`)
+- Use `start_workflow` (not `execute_workflow`)
+- Each Jupyter cell represents one component file
 
 4. **Exercise 4 - Multi-Agent Handoff** (`exercises/04_multi_agent_handoff/`)
    - Advanced: Multiple specialized agents from OpenAI Agents SDK similar to https://openai.github.io/openai-agents-python/quickstart/#put-it-all-together
-   - Triage agent routes queries to specialists of the WebSearchTool and another agent that we create
+   - Triage agent routes queries to specialist agents
    - Context maintained across agent handoffs
    - Workflow orchestration of agent-to-agent transitions
 
@@ -112,11 +280,45 @@ In Exercise 3, LLM calls are wrapped in **Temporal activities** rather than call
 - Replay-safe execution
 - Example of stopping the internet to show Temporal's durability
 
+### Workflow ID Naming Convention
+
+All workflows in this repository follow a consistent naming pattern for workflow IDs:
+
+**Pattern:** `{prefix}-{day}-{month}-{date}-{time}est`
+
+**Example:** `durable-agent-wed-oct-16-094832est`
+
+**Implementation:**
+```python
+from datetime import datetime
+import pytz
+
+# Generate workflow ID with EST timestamp
+est = pytz.timezone('US/Eastern')
+now = datetime.now(est)
+workflow_id = f"durable-agent-{now.strftime('%a-%b-%d-%I%M%S').lower()}est"
+```
+
+**Benefits:**
+- Human-readable workflow IDs
+- Chronologically sortable in Temporal UI
+- Timezone-aware (EST) for workshop coordination
+- Consistent pattern across all exercises
+
+**Examples by Exercise:**
+- Exercise 2: `hello-workflow-thu-oct-16-095919est`
+- Exercise 3: `durable-agent-wed-oct-16-094832est`
+- Exercise 4: `multi-agent-fri-oct-17-103045est`
+
+**Required Dependencies:**
+- Add `pytz` to pip install commands: `%pip install --quiet temporalio openai-agents httpx rich nest-asyncio pytz`
+- Import: `from datetime import datetime` and `import pytz`
+
 ### Observability Integration
 
 The durable agent implementation connects two observability systems:
 
-- **Temporal UI:** Shows workflow execution, retries, state
+- **Temporal UI:** Shows workflow execution, retries, state (workflows are easily identifiable by their human-readable IDs)
 - **OpenAI Traces:** Shows LLM calls and tool usage
 - **`trace_id`:** Correlation key printed to link both systems
 
