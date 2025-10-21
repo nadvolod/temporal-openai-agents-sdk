@@ -11,25 +11,14 @@
 - How to test durability by simulating network failures
 - How Temporal makes agents production-ready with zero agent modifications
 
-## Prerequisites
+## Setup
 
-1. **Temporal dev server running:**
-   ```bash
-   make temporal-up
-   ```
-   Verify at: http://localhost:8233
+Before doing the exercise, you need to:
 
-2. **OpenAI API key configured:**
-   ```bash
-   echo "OPENAI_API_KEY=sk-your-key" >> .env
-   ```
-
-3. **Internet connection:** Required for WebSearchTool
-
-4. **Dependencies installed:**
-   ```bash
-   pip install -e .
-   ```
+- Install necessary dependencies
+- Create your `.env` file and supply your API key
+- Load the environment variables
+- Download and start a local Temporal Service
 
 ## Architecture
 
@@ -60,6 +49,7 @@ This exercise builds on Exercise 1 by adding Temporal's durability layer:
 ### 1. Create the Same Agent from Exercise 1
 
 Use the **exact same "Web Research Agent"** from Exercise 1:
+
 ```python
 from agents import Agent, WebSearchTool
 
@@ -72,6 +62,7 @@ agent = Agent(
 ```
 
 **Key Insight:**
+
 - We're not changing the agent at all
 - Same name, same instructions, same tools
 - Temporal adds durability WITHOUT modifying agent code
@@ -79,6 +70,7 @@ agent = Agent(
 ### 2. Wrap Agent in Temporal Activity
 
 Create an activity that wraps the agent execution:
+
 ```python
 @activity.defn
 async def run_web_agent(query: str, trace_id: str) -> str:
@@ -92,6 +84,7 @@ async def run_web_agent(query: str, trace_id: str) -> str:
 ```
 
 **What this does:**
+
 - Wraps the agent call in a Temporal activity
 - Enables automatic retries if the web search fails
 - Provides observability with attempt numbers
@@ -99,6 +92,7 @@ async def run_web_agent(query: str, trace_id: str) -> str:
 ### 3. Create Durable Workflow with Retry Policy
 
 Define workflow that executes the activity with automatic retries:
+
 ```python
 @workflow.defn
 class DurableAgentWorkflow:
@@ -117,6 +111,7 @@ class DurableAgentWorkflow:
 ```
 
 **What this does:**
+
 - Orchestrates the activity execution
 - Defines retry policy (5 attempts with exponential backoff)
 - Persists workflow state across failures
@@ -128,6 +123,7 @@ Run the workflow with proper asyncio handling and optionally test durability.
 ## Expected Output
 
 ### Normal Execution:
+
 ```
 🚀 Exercise 3: Durable Agent with WebSearchTool
 
@@ -148,6 +144,7 @@ View in Temporal UI: http://localhost:8233/...
 ```
 
 ### With Network Failure (Durability Demo):
+
 ```
 🔍 Agent searching the web (attempt 1)...
 ✗ Network error: Connection failed
@@ -168,24 +165,30 @@ To demonstrate Temporal's automatic retry:
 ### Step-by-Step:
 
 1. **Start the workflow:**
+
    ```bash
    jupyter notebook exercises/03_durable_agent/exercise.ipynb
    ```
+
    Run all cells
 
 2. **While executing, disconnect network:**
+
    - **macOS:** Turn off WiFi OR `sudo ifconfig en0 down`
    - **Linux:** `sudo ip link set <interface> down`
    - **Windows:** Disable network adapter
 
 3. **Observe the failure:**
+
    - Console shows: `✗ Failed to fetch weather alerts`
    - Temporal logs show retry scheduling
 
 4. **Reconnect network:**
+
    - Turn WiFi back on OR `sudo ifconfig en0 up`
 
 5. **Watch automatic recovery:**
+
    - Temporal retries the activity
    - API call succeeds
    - Workflow completes successfully!
@@ -198,51 +201,58 @@ To demonstrate Temporal's automatic retry:
 ## Key Concepts
 
 ### OpenAI Agents SDK Integration
+
 - **Agent:** Defines behavior and available tools
 - **Runner:** Executes the agent and handles tool calls with asyncio
 - **WebSearchTool:** Built-in tool for web search (no custom implementation needed)
 
 ### Temporal Durability
+
 - **Activities:** Wrap external operations (agent execution, web searches, LLM calls)
 - **Retry Policies:** Automatic retry on failures with exponential backoff
 - **State Persistence:** Workflow state survives crashes and restarts
 - **Execution History:** Full audit trail in Temporal UI
 
 ### Asyncio Integration
+
 - **All operations use asyncio:** `await Runner.run()`, `async def` activities/workflows
 - **Non-blocking I/O:** Efficient handling of network operations
 - **Jupyter support:** `nest_asyncio` enables async in notebooks
 
 ## Comparison with Exercise 1
 
-| Aspect | Exercise 1 | Exercise 3 |
-|--------|------------|------------|
-| **Agent Code** | ✅ Web Research Agent | ✅ **SAME** Web Research Agent |
-| **Framework** | Agents SDK only | Agents SDK + Temporal |
-| **Retries** | None | Automatic (5 attempts, exponential backoff) |
-| **State** | Ephemeral (lost on crash) | Persisted (survives crashes) |
-| **Network Failure** | ❌ Immediate failure | ✅ Auto-retry and recover |
-| **Observability** | Console logs only | Full history in Temporal UI |
-| **Production Ready** | No | Yes |
+| Aspect               | Exercise 1                | Exercise 3                                  |
+| -------------------- | ------------------------- | ------------------------------------------- |
+| **Agent Code**       | ✅ Web Research Agent     | ✅ **SAME** Web Research Agent              |
+| **Framework**        | Agents SDK only           | Agents SDK + Temporal                       |
+| **Retries**          | None                      | Automatic (5 attempts, exponential backoff) |
+| **State**            | Ephemeral (lost on crash) | Persisted (survives crashes)                |
+| **Network Failure**  | ❌ Immediate failure      | ✅ Auto-retry and recover                   |
+| **Observability**    | Console logs only         | Full history in Temporal UI                 |
+| **Production Ready** | No                        | Yes                                         |
 
 **The Key Insight:** The agent itself doesn't change. Temporal adds durability by wrapping the agent execution, not by modifying the agent code.
 
 ## Troubleshooting
 
 **Error: `Failed to connect to Temporal server`**
+
 - Ensure Temporal is running: `make temporal-up`
 - Check server at: http://localhost:8233
 
 **Error: `OPENAI_API_KEY is not set`**
+
 - Add key to `.env` file in project root
 - Reload environment: `load_dotenv()`
 
 **Network disconnect doesn't cause retry:**
+
 - Disconnect **during** API call, not before
 - Check retry policy has `maximum_attempts > 1`
 - Look for retry logs in Temporal UI
 
 **No active alerts returned:**
+
 - Normal! Many states have no alerts
 - Try: CA, TX, FL (often have weather activity)
 - Check https://www.weather.gov for active alerts
@@ -250,16 +260,19 @@ To demonstrate Temporal's automatic retry:
 ## Stretch Goals
 
 1. **Extended Retry Policy:**
+
    - Increase `maximum_attempts` to 10
    - Add exponential backoff
    - Test with longer network outages
 
 2. **Multi-Turn Conversation:**
+
    - Add conversation history to agent
    - Support follow-up questions
    - Persist context in workflow state
 
 3. **Multiple Tools:**
+
    - Add current weather (not just alerts)
    - Add forecast endpoint
    - Let agent choose appropriate tool
