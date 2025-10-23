@@ -1,4 +1,4 @@
-.PHONY: setup env lint test temporal-up temporal-down exercise-1 exercise-2 exercise-3 exercise-4 clean
+.PHONY: setup env lint test temporal-up temporal-down clean
 
 setup:
 	@echo "Installing dependencies..."
@@ -25,17 +25,12 @@ temporal-down:
 	@echo "Stopping Temporal server..."
 	@pkill -f "temporal server start-dev" || echo "Temporal not running"
 
-exercise-1:
-	@python exercises/01_agent_hello_world/main.py
-
-exercise-2:
-	@python exercises/02_temporal_hello_world/main.py
-
-exercise-3:
-	@python exercises/03_durable_agent/main.py
-
-exercise-4:
-	@python exercises/04_multi_agent_handoff/main.py
+# Note: All exercises are Jupyter notebooks (.ipynb files)
+# Open them in VS Code or Jupyter Lab:
+#   exercises/01_agent_hello_world/exercise.ipynb
+#   exercises/02_temporal_hello_world/exercise.ipynb
+#   exercises/03_durable_agent/exercise.ipynb
+#   exercises/04_multi_agent_handoff/exercise.ipynb
 
 clean:
 	@echo "Cleaning up..."
